@@ -391,7 +391,7 @@ function render() {
     return;
   }
   document.getElementById('grid').innerHTML = filtered.map(c =>
-    `<a class="card" href="${c.url}" target="_blank" rel="noopener">
+    `<a class="card" href="${c.url}" target="_top" rel="noopener">
       <div class="card-name">${c.name}</div>
       <div class="card-tag">${c.cat}</div>
     </a>`
