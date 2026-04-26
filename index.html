@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天城流湯治法 症例検索</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+    background: #faf8f5;
+    color: #2c2c2a;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #ddd9d0;
+  }
+
+  .header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #2c2c2a;
+    margin-bottom: 6px;
+  }
+
+  .header p {
+    font-size: 12px;
+    color: #888780;
+    letter-spacing: 0.05em;
+  }
+
+  .search-wrap {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    font-size: 15px;
+    font-family: inherit;
+    border: 1px solid #d3d1c7;
+    border-radius: 8px;
+    background: #fff;
+    color: #2c2c2a;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-wrap input:focus {
+    border-color: #8b7355;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #b4b2a9;
+    font-size: 16px;
+    pointer-events: none;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 1.25rem;
+  }
+
+  .filter-btn {
+    font-size: 12px;
+    font-family: inherit;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid #d3d1c7;
+    background: #fff;
+    color: #5f5e5a;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.03em;
+  }
+
+  .filter-btn:hover {
+    background: #f1efe8;
+    border-color: #b4b2a9;
+  }
+
+  .filter-btn.active {
+    background: #6b5840;
+    border-color: #6b5840;
+    color: #fff;
+  }
+
+  .meta {
+    font-size: 12px;
+    color: #888780;
+    margin-bottom: 12px;
+    letter-spacing: 0.03em;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 8px;
+    margin-bottom: 2rem;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid #e8e5de;
+    border-radius: 8px;
+    padding: 12px 14px;
+    text-decoration: none;
+    display: block;
+    transition: all 0.15s;
+  }
+
+  .card:hover {
+    border-color: #8b7355;
+    box-shadow: 0 2px 8px rgba(107,88,64,0.1);
+    transform: translateY(-1px);
+  }
+
+  .card-name {
+    font-size: 13px;
+    color: #2c2c2a;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .card-tag {
+    font-size: 10px;
+    color: #888780;
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 3rem 0;
+    color: #888780;
+    font-size: 14px;
+  }
+
+  .notice {
+    font-size: 11px;
+    color: #b4b2a9;
+    text-align: center;
+    margin-top: 1.5rem;
+    line-height: 1.8;
+    letter-spacing: 0.03em;
+  }
+
+  @media (max-width: 480px) {
+    .grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .header h1 { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>天城流湯治法　症例索引</h1>
+    <p>症例名で検索、またはカテゴリで絞り込みができます</p>
+  </div>
+
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search" placeholder="例：腰痛、膝、肩、頭痛..." oninput="render()" />
+  </div>
+
+  <div class="filters" id="filters"></div>
+  <div class="meta" id="meta"></div>
+  <div class="grid" id="grid"></div>
+
+  <p class="notice">
+    ※ WEBでシェアされた情報（天城流湯治法協会HP・Facebook・ブログ等）を転記しております。<br>
+    ご自身の判断で参考事例としてご活用ください。
+  </p>
+</div>
+
+<script>
+const cases = [
+  {name:"ハンマリング",url:"https://www.facebook.com/amagiryuokayama/posts/1909530942582908",cat:"技術"},
+  {name:"偏頭痛",url:"https://www.facebook.com/amagiryuokayama/posts/1902316409971028",cat:"頭部"},
+  {name:"乳がんの手術の後遺症",url:"https://www.facebook.com/amagiryuokayama/posts/1852246894977980",cat:"内科・がん"},
+  {name:"第4の唾液腺",url:"https://www.facebook.com/amagiryuokayama/posts/1804273506441986",cat:"口腔・顔"},
+  {name:"音楽療法",url:"https://www.facebook.com/amagiryuokayama/posts/1777641642438506",cat:"技術"},
+  {name:"白血病",url:"https://www.facebook.com/amagiryuokayama/posts/1765612763641394",cat:"内科・がん"},
+  {name:"いつまでも治らない腰椎の圧迫骨折の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/1757857981083539",cat:"腰・背中"},
+  {name:"耳の奥の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/1738064206396250",cat:"頭部"},
+  {name:"種子骨の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/1734200706782600",cat:"足・脚"},
+  {name:"乳がんの治療後にする天城流セルフケアその2",url:"https://www.facebook.com/amagiryuokayama/posts/1717245778478093",cat:"内科・がん"},
+  {name:"夏バテ予防講座",url:"https://www.facebook.com/amagiryuokayama/posts/1714260938776577",cat:"技術"},
+  {name:"筋反射",url:"https://www.facebook.com/amagiryuokayama/posts/1713290688873602",cat:"技術"},
+  {name:"乳がんの治療後にする天城流セルフケアその1",url:"https://www.facebook.com/amagiryuokayama/posts/1705781742957830",cat:"内科・がん"},
+  {name:"脳梗塞の手の拘縮",url:"https://www.facebook.com/amagiryuokayama/posts/1698679573668047",cat:"神経・脳"},
+  {name:"ギックリ腰",url:"https://www.facebook.com/amagiryuokayama/posts/1690043831198288",cat:"腰・背中"},
+  {name:"後頭部の神経痛",url:"https://www.facebook.com/amagiryuokayama/posts/1689194091283262",cat:"頭部"},
+  {name:"肘の痛み（野球肘・テニス肘）",url:"https://www.facebook.com/amagiryuokayama/posts/1686935238175814",cat:"腕・手"},
+  {name:"40肩、50肩の治し方",url:"https://www.facebook.com/amagiryuokayama/posts/1685125331690138",cat:"肩・首"},
+  {name:"締め付けられる心臓の違和感",url:"https://www.facebook.com/amagiryuokayama/posts/1680384862164185",cat:"内科・がん"},
+  {name:"姿勢の矯正（猫背・巻き肩）",url:"https://www.facebook.com/amagiryuokayama/posts/1629758073893531",cat:"肩・首"},
+  {name:"パーキンソン病",url:"https://www.facebook.com/amagiryuokayama/posts/1450257961843544",cat:"神経・脳"},
+  {name:"サドルバーン",url:"https://www.facebook.com/amagiryuokayama/posts/1461179330751407",cat:"その他"},
+  {name:"嚥下障害",url:"https://www.facebook.com/amagiryuokayama/posts/1432091056993568",cat:"口腔・顔"},
+  {name:"脳梗塞の兆候",url:"https://www.facebook.com/amagiryuokayama/posts/1409966782539329",cat:"神経・脳"},
+  {name:"糖尿病の特徴の顔",url:"https://www.facebook.com/amagiryuokayama/posts/1394514070751267",cat:"内科・がん"},
+  {name:"身体の神経の躰起点",url:"https://www.facebook.com/amagiryuokayama/posts/1368361843366490",cat:"技術"},
+  {name:"免疫力について",url:"https://youtu.be/zpFrIQopjlU?t=4",cat:"技術"},
+  {name:"免疫を上げるエクササイズ",url:"https://www.facebook.com/media/set/?set=a.1359993804203294&type=3",cat:"技術"},
+  {name:"躰起点の基本的な考え方",url:"https://www.facebook.com/amagiryuokayama/posts/1349580825244592",cat:"技術"},
+  {name:"免疫マッサージ",url:"https://www.facebook.com/amagiryuokayama/posts/1346254518910556",cat:"技術"},
+  {name:"虫歯でない奥歯の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/1315798055289536",cat:"口腔・顔"},
+  {name:"膝の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/1288829577986384",cat:"足・脚"},
+  {name:"顔診法の理論",url:"https://www.facebook.com/amagiryuokayama/posts/1281138135422195",cat:"口腔・顔"},
+  {name:"下垂足",url:"https://www.facebook.com/amagiryuokayama/posts/1253142368221772",cat:"足・脚"},
+  {name:"のぼせ、背中の上部の重さ",url:"https://www.facebook.com/amagiryuokayama/posts/1235948203274522",cat:"腰・背中"},
+  {name:"噛み締めた時に奥歯が痛む",url:"https://www.facebook.com/amagiryuokayama/posts/1219348488267827",cat:"口腔・顔"},
+  {name:"筋膜をきる・はがすだけで緩む手技",url:"https://webinarsystem.jp/webinar/sugimoto?v=wp&pass=Rn8rBYWF",cat:"技術"},
+  {name:"振袖",url:"https://www.facebook.com/amagiryuokayama/posts/1133324013536942",cat:"腕・手"},
+  {name:"眼球の疾患",url:"https://www.facebook.com/100010912627431/videos/862907784082968/",cat:"頭部"},
+  {name:"安眠法",url:"https://www.facebook.com/amagiryuokayama/posts/1116642301871780",cat:"技術"},
+  {name:"顎関節症",url:"https://www.facebook.com/amagiryuokayama/posts/1083298325206178",cat:"口腔・顔"},
+  {name:"首",url:"https://www.facebook.com/amagiryuokayama/posts/1058153467720664",cat:"肩・首"},
+  {name:"変形性膝関節症・O脚",url:"https://www.facebook.com/amagiryuokayama/posts/1047319165470761",cat:"足・脚"},
+  {name:"足底筋膜炎もしくはモートン病と言われる痛み",url:"https://www.facebook.com/amagiryuokayama/posts/1041109352758409",cat:"足・脚"},
+  {name:"肉離れ",url:"https://www.facebook.com/amagiryuokayama/posts/1038575316345146",cat:"足・脚"},
+  {name:"脊柱管狭窄症",url:"https://www.facebook.com/amagiryuokayama/posts/1018299621706049",cat:"腰・背中"},
+  {name:"股関節の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/1014862255383119",cat:"足・脚"},
+  {name:"石女",url:"https://www.facebook.com/amagiryuokayama/posts/982395145296497",cat:"婦人科"},
+  {name:"寝違いの首の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/965509213651757",cat:"肩・首"},
+  {name:"脳梗塞の後遺症の対処法",url:"https://www.facebook.com/amagiryuokayama/posts/963448473857831",cat:"神経・脳"},
+  {name:"胃炎、逆流性食道炎",url:"https://www.facebook.com/amagiryuokayama/posts/957257851143560",cat:"内科・がん"},
+  {name:"後頭部の頚椎の一番と頭蓋骨の間の奥の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/951673791701966",cat:"頭部"},
+  {name:"ガマ腫",url:"https://www.facebook.com/amagiryuokayama/posts/912087728993906",cat:"口腔・顔"},
+  {name:"テニス肘・野球肘",url:"https://www.facebook.com/amagiryuokayama/posts/906490916220254",cat:"腕・手"},
+  {name:"嗅覚",url:"https://www.facebook.com/amagiryuokayama/posts/902106439992035",cat:"頭部"},
+  {name:"腹直筋離開",url:"https://www.facebook.com/amagiryuokayama/posts/872519249617421",cat:"内科・がん"},
+  {name:"脳梗塞の後遺症",url:"https://www.facebook.com/amagiryuokayama/posts/854078438128169",cat:"神経・脳"},
+  {name:"シミの形の症状",url:"https://www.facebook.com/amagiryuokayama/posts/849740668561946",cat:"口腔・顔"},
+  {name:"脳梗塞、脳血栓、脳溢血",url:"https://www.facebook.com/amagiryuokayama/posts/840122709523742",cat:"神経・脳"},
+  {name:"頭部に向けての血液の流れ",url:"https://www.facebook.com/amagiryuokayama/posts/824152661120747",cat:"神経・脳"},
+  {name:"右手の浮腫",url:"https://www.facebook.com/amagiryuokayama/posts/824151934454153",cat:"腕・手"},
+  {name:"不妊の兆候",url:"https://www.facebook.com/amagiryuokayama/posts/796764297192917",cat:"婦人科"},
+  {name:"ガングリオン",url:"https://www.facebook.com/amagiryuokayama/posts/783804741822206",cat:"腕・手"},
+  {name:"白湯顔①",url:"https://www.facebook.com/amagiryuokayama/posts/777691099100237",cat:"口腔・顔"},
+  {name:"白湯顔②",url:"https://www.facebook.com/amagiryuokayama/photos/a.484800405055976/662071667328848/?type=3",cat:"口腔・顔"},
+  {name:"幻肢痛",url:"https://www.facebook.com/amagiryuokayama/posts/775734985962515",cat:"神経・脳"},
+  {name:"脳幹脳腫瘍の施術",url:"https://www.facebook.com/amagiryuokayama/posts/770451186490895",cat:"神経・脳"},
+  {name:"喉の痛み・声枯れ",url:"https://www.facebook.com/100010912627431/videos/515469198826830/",cat:"肩・首"},
+  {name:"恥骨の躰起点",url:"https://www.facebook.com/amagiryuokayama/posts/763482277187786",cat:"技術"},
+  {name:"線維筋痛",url:"https://www.facebook.com/amagiryuokayama/posts/762141240655223",cat:"内科・がん"},
+  {name:"横隔膜",url:"https://www.facebook.com/amagiryuokayama/posts/761830797352934",cat:"内科・がん"},
+  {name:"痛みの原因",url:"https://www.facebook.com/amagiryuokayama/posts/755751557960858",cat:"技術"},
+  {name:"オスグッド",url:"https://www.facebook.com/amagiryuokayama/posts/742927352576612",cat:"足・脚"},
+  {name:"○起不全",url:"https://www.facebook.com/amagiryuokayama/photos/a.484800405055976/721084001427614/?type=3",cat:"その他"},
+  {name:"身体の脂肪",url:"https://www.facebook.com/amagiryuokayama/photos/a.484800405055976/680068118862536/?type=3",cat:"内科・がん"},
+  {name:"からだ新理論",url:"https://www.facebook.com/amagiryuokayama/photos/a.484800405055976/670165699852778/?type=3",cat:"技術"},
+  {name:"腕全体のシビレ",url:"https://www.facebook.com/amagiryuokayama/photos/a.484800405055976/667094703493211/?type=3",cat:"腕・手"},
+  {name:"からだをひねった時に背中が痛む",url:"https://www.facebook.com/amagiryuokayama/photos/a.484800405055976/667093950159953/?type=3",cat:"腰・背中"},
+  {name:"治療家や手先の仕事をしている人の疾患",url:"https://www.facebook.com/amagiryuokayama/posts/656662724536409",cat:"腕・手"},
+  {name:"薬害",url:"https://www.facebook.com/amagiryuokayama/posts/656661851203163",cat:"内科・がん"},
+  {name:"心臓発作",url:"https://www.facebook.com/amagiryuokayama/posts/645985388937476",cat:"内科・がん"},
+  {name:"40肩、50肩の新しいアプローチ",url:"https://www.facebook.com/amagiryuokayama/posts/642582522611096",cat:"肩・首"},
+  {name:"うつ顔",url:"https://www.facebook.com/amagiryuokayama/posts/640255976177084",cat:"口腔・顔"},
+  {name:"鼻茸",url:"https://www.facebook.com/amagiryuokayama/photos/a.484800405055976/626214150914600/?type=3",cat:"頭部"},
+  {name:"出っ歯",url:"https://www.facebook.com/amagiryuokayama/posts/621357634733585",cat:"口腔・顔"},
+  {name:"蝶形骨",url:"https://www.facebook.com/amagiryuokayama/photos/a.484800405055976/615267828675899/?type=3",cat:"頭部"},
+  {name:"こむろがえし",url:"https://www.facebook.com/amagiryuokayama/posts/611134052422610",cat:"足・脚"},
+  {name:"体幹軸",url:"https://www.facebook.com/amagiryuokayama/posts/592664574269558",cat:"技術"},
+  {name:"アルツハイマー系の顔",url:"https://www.facebook.com/amagiryuokayama/posts/592663604269655",cat:"神経・脳"},
+  {name:"甲状腺異常",url:"https://www.facebook.com/amagiryuokayama/posts/587154131487269",cat:"内科・がん"},
+  {name:"脳梗塞の原因",url:"https://www.facebook.com/amagiryuokayama/posts/582159995320016",cat:"神経・脳"},
+  {name:"妊娠中の腰痛",url:"https://www.facebook.com/amagiryuokayama/posts/575244882678194",cat:"婦人科"},
+  {name:"足底の緩め方",url:"https://www.facebook.com/amagiryuokayama/posts/572741509595198",cat:"足・脚"},
+  {name:"肋間神経痛",url:"https://www.facebook.com/amagiryuokayama/posts/553105154892167",cat:"腰・背中"},
+  {name:"乳輪ほぐし",url:"https://www.facebook.com/amagiryuokayama/posts/552507341618615",cat:"内科・がん"},
+  {name:"タッピング",url:"https://www.facebook.com/100010912627431/videos/260771430963276/",cat:"技術"},
+  {name:"顎の手術後のシビレ",url:"https://www.facebook.com/amagiryuokayama/posts/540495339486482",cat:"口腔・顔"},
+  {name:"三叉神経痛",url:"https://www.facebook.com/amagiryuokayama/posts/529902380545778",cat:"神経・脳"},
+  {name:"脊柱管狭窄症（動画）",url:"https://www.facebook.com/100010912627431/videos/239345809772505/",cat:"腰・背中"},
+  {name:"逆子",url:"https://www.facebook.com/amagiryuokayama/photos/a.484800405055976/517223338480349/?type=3",cat:"婦人科"},
+  {name:"心臓疾患と不整脈",url:"https://www.facebook.com/amagiryuokayama/photos/a.484800405055976/510116745857675/?type=3",cat:"内科・がん"},
+  {name:"へバーデン結節",url:"https://www.facebook.com/amagiryuokayama/posts/503787136490636",cat:"腕・手"},
+  {name:"ドライマウス",url:"https://www.facebook.com/amagiryuokayama/photos/a.484800405055976/484800775055939/?type=3",cat:"口腔・顔"},
+  {name:"脊椎側彎症",url:"https://www.facebook.com/amagiryuokayama/posts/456595514543132",cat:"腰・背中"},
+  {name:"呼吸の躰起点",url:"https://www.facebook.com/amagiryuokayama/posts/456591097876907",cat:"技術"},
+  {name:"うつ病",url:"https://www.facebook.com/amagiryuokayama/posts/456590997876917",cat:"神経・脳"},
+  {name:"顎関節症②",url:"https://www.facebook.com/amagiryuokayama/posts/456590664543617",cat:"口腔・顔"},
+  {name:"正中心点",url:"https://www.facebook.com/amagiryuokayama/posts/456590514543632",cat:"技術"},
+  {name:"ぎっくり腰",url:"https://www.facebook.com/amagiryuokayama/posts/456590387876978",cat:"腰・背中"},
+  {name:"外反母趾",url:"https://www.facebook.com/amagiryuokayama/posts/456589857877031",cat:"足・脚"},
+  {name:"４０肩　５０肩",url:"https://www.facebook.com/amagiryuokayama/posts/456589671210383",cat:"肩・首"},
+  {name:"乳腺炎",url:"https://www.facebook.com/amagiryuokayama/posts/456589581210392",cat:"内科・がん"},
+  {name:"ドライアイ",url:"https://www.facebook.com/amagiryuokayama/posts/456587777877239",cat:"頭部"},
+  {name:"膝の痛み②",url:"https://www.facebook.com/amagiryuokayama/posts/456587554543928",cat:"足・脚"},
+  {name:"オシリの外側のしびれ",url:"https://www.facebook.com/amagiryuokayama/posts/456585774544106",cat:"足・脚"},
+  {name:"喘息・咳・喉の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456585601210790",cat:"内科・がん"},
+  {name:"痛風",url:"https://www.facebook.com/amagiryuokayama/posts/456584841210866",cat:"足・脚"},
+  {name:"背中の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456584664544217",cat:"腰・背中"},
+  {name:"肩甲骨の内側の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456584427877574",cat:"肩・首"},
+  {name:"緑内障・白内障・網膜剥離",url:"https://www.facebook.com/amagiryuokayama/posts/456584267877590",cat:"頭部"},
+  {name:"手首の腱鞘炎",url:"https://www.facebook.com/amagiryuokayama/posts/456584191210931",cat:"腕・手"},
+  {name:"手の甲の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456583957877621",cat:"腕・手"},
+  {name:"肩甲骨の奥の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456583237877693",cat:"肩・首"},
+  {name:"小顔",url:"https://www.facebook.com/amagiryuokayama/posts/456582807877736",cat:"口腔・顔"},
+  {name:"ギックリ腰以外の腰の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456582727877744",cat:"腰・背中"},
+  {name:"乳首",url:"https://www.facebook.com/amagiryuokayama/posts/456582484544435",cat:"内科・がん"},
+  {name:"無いはずの小指が疼く",url:"https://www.facebook.com/amagiryuokayama/posts/456582187877798",cat:"腕・手"},
+  {name:"顔の形のアンバランス",url:"https://www.facebook.com/amagiryuokayama/posts/456582007877816",cat:"口腔・顔"},
+  {name:"O脚",url:"https://www.facebook.com/amagiryuokayama/posts/456581857877831",cat:"足・脚"},
+  {name:"肩の痺れ",url:"https://www.facebook.com/amagiryuokayama/posts/456581464544537",cat:"肩・首"},
+  {name:"声",url:"https://www.facebook.com/amagiryuokayama/posts/456581307877886",cat:"肩・首"},
+  {name:"成長痛",url:"https://www.facebook.com/amagiryuokayama/posts/456581117877905",cat:"足・脚"},
+  {name:"指の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456581007877916",cat:"腕・手"},
+  {name:"股関節の痛み②",url:"https://www.facebook.com/amagiryuokayama/posts/456580697877947",cat:"足・脚"},
+  {name:"手首を回すと痛む",url:"https://www.facebook.com/amagiryuokayama/posts/456580484544635",cat:"腕・手"},
+  {name:"太腿外側のシビレ",url:"https://www.facebook.com/amagiryuokayama/posts/456579954544688",cat:"足・脚"},
+  {name:"乳がんの手術痕が痛む",url:"https://www.facebook.com/amagiryuokayama/posts/456579774544706",cat:"内科・がん"},
+  {name:"尾骨の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456579604544723",cat:"腰・背中"},
+  {name:"握れない手の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456579521211398",cat:"腕・手"},
+  {name:"額の左右のバランス",url:"https://www.facebook.com/amagiryuokayama/posts/456578694544814",cat:"口腔・顔"},
+  {name:"甲状腺ホルモンの異常",url:"https://www.facebook.com/amagiryuokayama/posts/456578207878196",cat:"内科・がん"},
+  {name:"ソケイをゆるめる",url:"https://www.facebook.com/amagiryuokayama/posts/456577434544940",cat:"技術"},
+  {name:"糖尿病の改善",url:"https://www.facebook.com/amagiryuokayama/posts/456577011211649",cat:"内科・がん"},
+  {name:"免疫を上げる指圧法",url:"https://www.facebook.com/amagiryuokayama/posts/456576877878329",cat:"技術"},
+  {name:"足の第一指の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456576757878341",cat:"足・脚"},
+  {name:"唾液の仕組み",url:"https://www.facebook.com/amagiryuokayama/posts/456576674545016",cat:"口腔・顔"},
+  {name:"尿漏れ",url:"https://www.facebook.com/amagiryuokayama/posts/456575674545116",cat:"婦人科"},
+  {name:"足の浮腫み",url:"https://www.facebook.com/amagiryuokayama/posts/456575331211817",cat:"足・脚"},
+  {name:"足先の冷え",url:"https://www.facebook.com/amagiryuokayama/posts/456566447879372",cat:"足・脚"},
+  {name:"足の裏の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456566064546077",cat:"足・脚"},
+  {name:"背中の肩甲骨の下の疼痛や脂肪",url:"https://www.facebook.com/amagiryuokayama/posts/456565661212784",cat:"肩・首"},
+  {name:"足の甲の躰起点",url:"https://www.facebook.com/amagiryuokayama/posts/456565567879460",cat:"技術"},
+  {name:"仙骨まわりの疾患",url:"https://www.facebook.com/amagiryuokayama/posts/456565237879493",cat:"腰・背中"},
+  {name:"肘の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456565091212841",cat:"腕・手"},
+  {name:"寝違えの首の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456564894546194",cat:"肩・首"},
+  {name:"乳腺炎②",url:"https://www.facebook.com/amagiryuokayama/posts/456564457879571",cat:"内科・がん"},
+  {name:"首の奥の細い痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456564071212943",cat:"肩・首"},
+  {name:"股関節の問題",url:"https://www.facebook.com/amagiryuokayama/posts/456562927879724",cat:"足・脚"},
+  {name:"外反母趾・内反小指",url:"https://www.facebook.com/amagiryuokayama/posts/456562717879745",cat:"足・脚"},
+  {name:"乾癬",url:"https://www.facebook.com/amagiryuokayama/posts/456562551213095",cat:"内科・がん"},
+  {name:"肘の痛み、手首の痛み、上腕前の痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456562474546436",cat:"腕・手"},
+  {name:"膝下の骨の出っ張り・かかとの痛み",url:"https://www.facebook.com/amagiryuokayama/posts/456562417879775",cat:"足・脚"},
+  {name:"丹田",url:"https://www.facebook.com/100000413475585/videos/987431067947333/",cat:"技術"},
+  {name:"外斜視",url:"https://www.facebook.com/amagiryuokayama/posts/456436711225679",cat:"頭部"},
+  {name:"足舟状骨の痛みと骨折の原因",url:"https://www.facebook.com/amagiryuokayama/posts/448735398662477",cat:"足・脚"},
+  {name:"へバーデン結節②",url:"https://www.facebook.com/amagiryuokayama/posts/436922263177124",cat:"腕・手"},
+  {name:"皮膚疾患",url:"https://www.facebook.com/amagiryuokayama/posts/419112271624790",cat:"内科・がん"},
+  {name:"パーキンソン病（研究会）",url:"http://www.idamagi.com",cat:"神経・脳"},
+  {name:"肩の痛み（動画）",url:"https://www.facebook.com/amagiryutojihou/videos/479083188961260/",cat:"肩・首"},
+  {name:"膝の痛み（動画）",url:"https://www.facebook.com/amagiryutojihou/videos/477128169156762/",cat:"足・脚"},
+];
+
+const cats = ["すべて","頭部","肩・首","腕・手","腰・背中","足・脚","口腔・顔","神経・脳","内科・がん","婦人科","技術","その他"];
+let activeCat = "すべて";
+
+function renderFilters() {
+  document.getElementById('filters').innerHTML = cats.map(c =>
+    `<button class="filter-btn${activeCat===c?' active':''}" onclick="setcat('${c}')">${c}</button>`
+  ).join('');
+}
+
+function setcat(c) { activeCat = c; render(); }
+
+function render() {
+  const q = document.getElementById('search').value.trim();
+  const filtered = cases.filter(c => {
+    const matchCat = activeCat === "すべて" || c.cat === activeCat;
+    const matchQ = !q || c.name.includes(q) || c.cat.includes(q);
+    return matchCat && matchQ;
+  });
+  renderFilters();
+  document.getElementById('meta').textContent = filtered.length + ' 件';
+  if (filtered.length === 0) {
+    document.getElementById('grid').innerHTML = '<div class="empty">該当する症例が見つかりませんでした</div>';
+    return;
+  }
+  document.getElementById('grid').innerHTML = filtered.map(c =>
+    `<a class="card" href="${c.url}" target="_blank" rel="noopener">
+      <div class="card-name">${c.name}</div>
+      <div class="card-tag">${c.cat}</div>
+    </a>`
+  ).join('');
+}
+
+render();
+</script>
+</body>
+</html>
