@@ -391,10 +391,10 @@ function render() {
     return;
   }
   document.getElementById('grid').innerHTML = filtered.map(c =>
-    `<a class="card" href="${c.url}" target="_top" rel="noopener">
+    `<div class="card" onclick="window.open('${c.url}','_blank')" style="cursor:pointer;">
       <div class="card-name">${c.name}</div>
       <div class="card-tag">${c.cat}</div>
-    </a>`
+    </div>`
   ).join('');
 }
 
