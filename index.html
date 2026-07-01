@@ -159,9 +159,17 @@
     color: #fff;
     letter-spacing: 0.08em;
     padding: 8px 16px;
-    background: linear-gradient(90deg, #2d5986, #3a6fa0);
-    border-radius: 4px;
+    border-radius: 6px;
     margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .cat-icon {
+    font-size: 20px;
+    margin-right: 6px;
+    line-height: 1;
   }
 
   .cat-count {
@@ -383,12 +391,28 @@ const cases = [
 ];
 
 const cats = ["すべて","頭部","肩・首","腕・手","腰・背中","足・脚","口腔・顔","神経・脳","内科・がん","婦人科","その他"];
+
+const catIcons = {
+  "すべて":   {emoji:"🔍", bg:"#4a7aad"},
+  "頭部":     {emoji:"🧠", bg:"#7b68c8"},
+  "肩・首":   {emoji:"💆", bg:"#5a9abf"},
+  "腕・手":   {emoji:"🤲", bg:"#4aaa82"},
+  "腰・背中": {emoji:"🦴", bg:"#c87c3a"},
+  "足・脚":   {emoji:"🦵", bg:"#c85a5a"},
+  "口腔・顔": {emoji:"😊", bg:"#c8a030"},
+  "神経・脳": {emoji:"⚡", bg:"#7a5ac8"},
+  "内科・がん":{emoji:"❤️", bg:"#c85070"},
+  "婦人科":   {emoji:"🌸", bg:"#c868a0"},
+  "その他":   {emoji:"📋", bg:"#5a8a6a"},
+};
+
 let activeCat = "すべて";
 
 function renderFilters() {
-  document.getElementById('filters').innerHTML = cats.map(c =>
-    `<button class="filter-btn${activeCat===c?' active':''}" onclick="setcat('${c}')">${c}</button>`
-  ).join('');
+  document.getElementById('filters').innerHTML = cats.map(c => {
+    const icon = catIcons[c] ? catIcons[c].emoji : '';
+    return `<button class="filter-btn${activeCat===c?' active':''}" onclick="setcat('${c}')">${icon} ${c}</button>`;
+  }).join('');
 }
 
 function setcat(c) { activeCat = c; render(); }
@@ -424,9 +448,13 @@ function render() {
   displayCats.forEach(cat => {
     const group = filtered.filter(c => c.cat === cat);
     if (group.length === 0) return;
+    const icon = catIcons[cat] || {emoji:"📌", bg:"#4a7aad"};
     html += `
       <div class="cat-group">
-        <div class="cat-heading">${cat} <span class="cat-count">${group.length}件</span></div>
+        <div class="cat-heading" style="background: linear-gradient(90deg, ${icon.bg}, ${icon.bg}cc);">
+          <span class="cat-icon">${icon.emoji}</span>${cat}
+          <span class="cat-count">${group.length}件</span>
+        </div>
         <div class="grid">${cards(group)}</div>
       </div>`;
   });
