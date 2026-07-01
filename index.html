@@ -84,9 +84,9 @@
   }
 
   .filter-btn {
-    font-size: 12px;
+    font-size: 15px;
     font-family: inherit;
-    padding: 5px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
     border: 1.5px solid #b8c8dc;
     background: #fff;
@@ -108,7 +108,7 @@
   }
 
   .meta {
-    font-size: 12px;
+    font-size: 14px;
     color: #5a7a9a;
     margin-bottom: 12px;
     letter-spacing: 0.03em;
@@ -125,7 +125,7 @@
     background: #fff;
     border: 1.5px solid #c8d8e8;
     border-radius: 8px;
-    padding: 12px 14px;
+    padding: 14px 16px;
     display: block;
     transition: all 0.15s;
   }
@@ -138,7 +138,7 @@
   }
 
   .card-name {
-    font-size: 13px;
+    font-size: 16px;
     color: #1a2535;
     font-weight: 500;
     line-height: 1.5;
@@ -148,17 +148,17 @@
     text-align: center;
     padding: 3rem 0;
     color: #5a7a9a;
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .cat-group { margin-bottom: 2rem; }
 
   .cat-heading {
-    font-size: 17px;
+    font-size: 19px;
     font-weight: 600;
     color: #fff;
     letter-spacing: 0.08em;
-    padding: 8px 16px;
+    padding: 10px 18px;
     border-radius: 6px;
     margin-bottom: 10px;
     display: flex;
@@ -167,20 +167,13 @@
   }
 
   .cat-icon {
-    font-size: 20px;
+    font-size: 22px;
     margin-right: 6px;
     line-height: 1;
   }
 
-  .cat-count {
-    font-size: 11px;
-    font-weight: 400;
-    color: #a8c4de;
-    margin-left: 8px;
-  }
-
   .notice {
-    font-size: 11px;
+    font-size: 13px;
     color: #7a9ab8;
     text-align: center;
     margin-top: 1.5rem;
@@ -190,7 +183,7 @@
 
   @media (max-width: 480px) {
     .grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
-    .header h1 { font-size: 18px; }
+    .header h1 { font-size: 20px; }
   }
 </style>
 </head>
@@ -453,7 +446,6 @@ function render() {
       <div class="cat-group">
         <div class="cat-heading" style="background: linear-gradient(90deg, ${icon.bg}, ${icon.bg}cc);">
           <span class="cat-icon">${icon.emoji}</span>${cat}
-          <span class="cat-count">${group.length}件</span>
         </div>
         <div class="grid">${cards(group)}</div>
       </div>`;
