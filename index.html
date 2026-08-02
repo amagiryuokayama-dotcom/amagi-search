@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>天城流湯治法～シェアお願いシリーズ～　症例検索</title>
+<title>天城流湯治法 症例検索</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -86,25 +86,28 @@
   .filter-btn {
     font-size: 15px;
     font-family: inherit;
-    padding: 6px 14px;
+    font-weight: 600;
+    padding: 8px 18px;
     border-radius: 20px;
-    border: 1.5px solid #b8c8dc;
+    border: 2px solid #2d5986;
     background: #fff;
     color: #2d5986;
     cursor: pointer;
     transition: all 0.15s;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.05em;
+    box-shadow: 0 1px 4px rgba(45,89,134,0.1);
   }
 
   .filter-btn:hover {
-    background: #dce8f4;
-    border-color: #2d5986;
+    background: #2d5986;
+    color: #fff;
   }
 
   .filter-btn.active {
     background: #1a3a5c;
     border-color: #1a3a5c;
     color: #fff;
+    box-shadow: 0 2px 8px rgba(26,58,92,0.3);
   }
 
   .meta {
@@ -155,21 +158,17 @@
 
   .cat-heading {
     font-size: 19px;
-    font-weight: 600;
-    color: #fff;
+    font-weight: 700;
+    color: #1a3a5c;
     letter-spacing: 0.08em;
     padding: 10px 18px;
-    border-radius: 6px;
+    background: #dce8f4;
+    border-left: 6px solid #1a3a5c;
+    border-radius: 4px;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
     gap: 4px;
-  }
-
-  .cat-icon {
-    font-size: 22px;
-    margin-right: 6px;
-    line-height: 1;
   }
 
   .notice {
@@ -385,27 +384,12 @@ const cases = [
 
 const cats = ["すべて","頭部","肩・首","腕・手","腰・背中","足・脚","口腔・顔","神経・脳","内科・がん","婦人科","その他"];
 
-const catIcons = {
-  "すべて":   {emoji:"🔍", bg:"#4a7aad"},
-  "頭部":     {emoji:"🧠", bg:"#7b68c8"},
-  "肩・首":   {emoji:"💆", bg:"#5a9abf"},
-  "腕・手":   {emoji:"🤲", bg:"#4aaa82"},
-  "腰・背中": {emoji:"🦴", bg:"#c87c3a"},
-  "足・脚":   {emoji:"🦵", bg:"#c85a5a"},
-  "口腔・顔": {emoji:"😊", bg:"#c8a030"},
-  "神経・脳": {emoji:"⚡", bg:"#7a5ac8"},
-  "内科・がん":{emoji:"❤️", bg:"#c85070"},
-  "婦人科":   {emoji:"🌸", bg:"#c868a0"},
-  "その他":   {emoji:"📋", bg:"#5a8a6a"},
-};
-
 let activeCat = "すべて";
 
 function renderFilters() {
-  document.getElementById('filters').innerHTML = cats.map(c => {
-    const icon = catIcons[c] ? catIcons[c].emoji : '';
-    return `<button class="filter-btn${activeCat===c?' active':''}" onclick="setcat('${c}')">${icon} ${c}</button>`;
-  }).join('');
+  document.getElementById('filters').innerHTML = cats.map(c =>
+    `<button class="filter-btn${activeCat===c?' active':''}" onclick="setcat('${c}')">${c}</button>`
+  ).join('');
 }
 
 function setcat(c) { activeCat = c; render(); }
@@ -441,11 +425,10 @@ function render() {
   displayCats.forEach(cat => {
     const group = filtered.filter(c => c.cat === cat);
     if (group.length === 0) return;
-    const icon = catIcons[cat] || {emoji:"📌", bg:"#4a7aad"};
     html += `
       <div class="cat-group">
-        <div class="cat-heading" style="background: linear-gradient(90deg, ${icon.bg}, ${icon.bg}cc);">
-          <span class="cat-icon">${icon.emoji}</span>${cat}
+        <div class="cat-heading">
+          ${cat}
         </div>
         <div class="grid">${cards(group)}</div>
       </div>`;
